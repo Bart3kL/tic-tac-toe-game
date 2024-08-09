@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import { Button } from "../../../shared/Button";
 
@@ -9,17 +9,19 @@ import { Typewriter } from "../../../shared/Typewriter";
 
 export const Usernames: React.FC<UsernamesProps> = ({
   players,
-  startGame,
+
   playSound,
   isSoundActive,
+  setStep,
+  nick1,
+  nick2,
+  setNick1,
+  setNick2,
 }) => {
-  const [nick1, setNick1] = useState("");
-  const [nick2, setNick2] = useState("");
-
   const handleSubmit = () => {
     isSoundActive && playSound();
     setTimeout(() => {
-      startGame({ nick1, nick2: players === 2 ? nick2 : "Komputer" });
+      setStep(3);
     }, 100);
   };
 

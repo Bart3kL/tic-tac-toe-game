@@ -27,7 +27,7 @@ export const GameSelection: React.FC<GameSelectionProps> = ({
       <ButtonsWrapper>
         <Button
           onClick={() => handleSelection(1, "PlayVsRobot")}
-          text="Play vs robot"
+          text="Play vs ai"
         />
         <Button
           onClick={() => handleSelection(2, "PlayWithAFriend")}

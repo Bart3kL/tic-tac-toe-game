@@ -17,6 +17,7 @@ type SetupGameEvent = {
   type: typeof GameEvent.SETUP_GAME;
   gameType: string;
   usernames: string[];
+  boardSize: number;
 };
 
 export interface GameProps {
@@ -29,4 +30,5 @@ export interface GameProps {
   ticTacToeState: TicTacToeState; // używamy określonego typu dla maszyny stanowej
   setStart: (start: boolean) => void;
   setFormStep: (step: number) => void;
+  boardSize: number;
 }

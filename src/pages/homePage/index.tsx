@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useMachine } from "@xstate/react";
 import soundManagerMachine from "../../machines/soundManagerMachine";
 import ticTacToeMachine, { GameEvent } from "../../machines/ticTacToeMachine";
@@ -9,6 +9,8 @@ import { Wrapper } from "./styles";
 
 export const HomePage: React.FC = () => {
   const [formStep, setFormStep] = useState(1);
+  const [boardSize, setBoardSize] = useState(3);
+
   const [state, send] = useMachine(soundManagerMachine);
   const [ticTacToeState, ticTacToeSend] = useMachine(ticTacToeMachine);
 
@@ -16,14 +18,24 @@ export const HomePage: React.FC = () => {
   const isMusicActive = state.context.isMusicOn;
 
   const [start, setStart] = useState(false);
+  const [gameType, setGameType] = useState<string | null>(null);
+  const [playerInfo, setPlayerInfo] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    if (gameType && playerInfo) {
+      ticTacToeSend({
+        type: GameEvent.SETUP_GAME,
+        gameType,
+        usernames: playerInfo,
+        boardSize,
+      });
+      setStart(true);
+    }
+  }, [boardSize, gameType, playerInfo, ticTacToeSend]);
 
   const startGame = (type: string, playerInfo: string[]) => {
-    ticTacToeSend({
-      type: GameEvent.SETUP_GAME,
-      gameType: type,
-      usernames: playerInfo,
-    });
-    setStart(true);
+    setGameType(type);
+    setPlayerInfo(playerInfo);
   };
 
   return (
@@ -39,6 +51,7 @@ export const HomePage: React.FC = () => {
           isSoundActive={isSoundActive}
           formStep={formStep}
           setFormStep={setFormStep}
+          setBoardSize={setBoardSize}
         />
       )}
       {start && (
@@ -48,6 +61,7 @@ export const HomePage: React.FC = () => {
           ticTacToeState={ticTacToeState}
           setStart={setStart}
           setFormStep={setFormStep}
+          boardSize={boardSize} // Przekaż boardSize
         />
       )}
     </Wrapper>

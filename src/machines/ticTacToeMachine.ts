@@ -23,6 +23,7 @@ export type TicTacToeEvent =
       type: typeof GameEvent.SETUP_GAME;
       gameType: string;
       usernames: string[];
+      boardSize: number; // Dodaj to
     };
 
 const defaultContext = {
@@ -31,7 +32,10 @@ const defaultContext = {
   winningPlayer: undefined as PlayerType | undefined,
   gameType: "" as string,
   usernames: [] as string[],
+  boardSize: 3, // Dodaj to domyślne ustawienie
 };
+
+const resizeGrid = (size: number): CellValue[] => Array(size * size).fill(null);
 
 export const ticTacToeMachine = createMachine(
   {
@@ -89,8 +93,12 @@ export const ticTacToeMachine = createMachine(
           context.currentPlayer === "x" ? "o" : "x",
       }),
       restartGame: assign({
-        ...defaultContext,
+        grid: resizeGrid(defaultContext.boardSize), // Upewnij się, że restart gry resetuje planszę do ustawionego rozmiaru
         currentPlayer: "x",
+        winningPlayer: undefined,
+        gameType: "",
+        usernames: [],
+        boardSize: 3, // Zresetuj również boardSize do domyślnego ustawienia
       }),
       declareWinner: assign({
         winningPlayer: ({ context }) =>
@@ -105,20 +113,58 @@ export const ticTacToeMachine = createMachine(
           if (event.type !== GameEvent.SETUP_GAME) return [];
           return event.usernames;
         },
+        boardSize: ({ event }) => {
+          if (event.type !== GameEvent.SETUP_GAME) return 3;
+          return event.boardSize;
+        },
+        grid: ({ event }) => {
+          if (event.type !== GameEvent.SETUP_GAME) return resizeGrid(3);
+          return resizeGrid(event.boardSize);
+        },
       }),
     },
     guards: {
-      hasWinner: ({ context: { grid } }) => {
-        const winningPatterns = [
-          [0, 1, 2],
-          [3, 4, 5],
-          [6, 7, 8],
-          [0, 3, 6],
-          [1, 4, 7],
-          [2, 5, 8],
-          [0, 4, 8],
-          [2, 4, 6],
-        ];
+      hasWinner: ({ context: { grid, boardSize } }) => {
+        // Function to find winning patterns for 3 consecutive identical symbols in a grid
+        const getWinningPatterns = (size: number) => {
+          const patterns: number[][] = [];
+
+          // Horizontal and Vertical
+          for (let i = 0; i < size; i++) {
+            for (let j = 0; j <= size - 3; j++) {
+              // Horizontal
+              patterns.push([i * size + j, i * size + j + 1, i * size + j + 2]);
+              // Vertical
+              patterns.push([
+                j * size + i,
+                (j + 1) * size + i,
+                (j + 2) * size + i,
+              ]);
+            }
+          }
+
+          // Diagonal (both directions)
+          for (let i = 0; i <= size - 3; i++) {
+            for (let j = 0; j <= size - 3; j++) {
+              // Top-left to bottom-right
+              patterns.push([
+                i * size + j,
+                (i + 1) * size + j + 1,
+                (i + 2) * size + j + 2,
+              ]);
+              // Bottom-left to top-right
+              patterns.push([
+                (i + 2) * size + j,
+                (i + 1) * size + j + 1,
+                i * size + j + 2,
+              ]);
+            }
+          }
+
+          return patterns;
+        };
+
+        const winningPatterns = getWinningPatterns(boardSize);
 
         return winningPatterns.some((pattern) =>
           pattern.every(

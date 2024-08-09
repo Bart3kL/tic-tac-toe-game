@@ -3,4 +3,5 @@ export interface FormProps {
   isSoundActive: boolean;
   formStep: number;
   setFormStep: (step: number) => void;
+  setBoardSize: (size: number) => void;
 }
