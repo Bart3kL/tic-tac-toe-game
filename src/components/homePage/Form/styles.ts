@@ -5,6 +5,8 @@ export const FormWrapper = styled.div`
   justify-content: center;
   align-items: center;
 
+  width: calc(100% - 20px);
+  max-width: 450px;
   border-radius: 12px;
   border: 1px solid ${({ theme }) => theme.colors.paleLavender};
   padding: 20px;

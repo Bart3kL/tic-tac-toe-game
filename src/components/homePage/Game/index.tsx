@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from "react";
+
 import { Board } from "./Board";
+import { Popup } from "./Popup";
+
 import { Typewriter } from "../../shared/Typewriter";
 import { GameEvent, GameState } from "../../../machines/ticTacToeMachine";
 import { getTypewriterText, getCurrentPlayerText } from "./utils";
-import {
-  Wrapper,
-  GameStatus,
-  Box,
-  Popup,
-  PopupContent,
-  PopupImage,
-} from "./styles"; // Import additional styles
+import { Wrapper, GameStatus, Box } from "./styles";
+import { prompt } from "../../../openai/prompts/aiMove";
 import { Button } from "../../shared/Button";
-import { getAiMove } from "../../../ai/getAiMove";
 import { GameProps } from "./types";
-import useOpenAIStream from "../../../ai/streaming"; // Import hooka
+import useOpenAIStream from "../../../openai/streaming";
+import { getOpenAiMove } from "../../../openai/getOpenAiMove";
 
 export const Game: React.FC<GameProps> = ({
   send,
@@ -30,7 +27,8 @@ export const Game: React.FC<GameProps> = ({
 }) => {
   const [winnerPrompt, setWinnerPrompt] = useState<string | null>(null);
   const { response } = useOpenAIStream(winnerPrompt);
-  const [showPopup, setShowPopup] = useState(false); // Add state for popup visibility
+
+  const [showPopup, setShowPopup] = useState(false);
 
   const handleSquareClick = (index: number): void => {
     send({ type: GameEvent.PLAY_MOVE, position: index });
@@ -40,10 +38,9 @@ export const Game: React.FC<GameProps> = ({
     setFormStep(1);
     setStart(false);
     send({ type: GameEvent.RESET });
-    setShowPopup(false); // Hide popup on reset
+    setShowPopup(false);
   };
 
-  // Fetch AI move after each user's move
   useEffect(() => {
     const fetchAiMove = async () => {
       if (
@@ -51,7 +48,15 @@ export const Game: React.FC<GameProps> = ({
         currentPlayer === "o" &&
         ticTacToeState.matches(GameState.IN_PROGRESS)
       ) {
-        const aiMove = await getAiMove(grid);
+        const newArray = grid.map((value, index) => ({
+          index: index,
+          itBelongsAlreadyToSamone: value !== null,
+        }));
+        const aiMove = await getOpenAiMove(`
+          #ARRAY
+          [${JSON.stringify(newArray)}]
+          ${prompt}
+          `);
         const isValidMove = grid[aiMove] === null;
 
         if (isValidMove && aiMove !== -1) {
@@ -63,7 +68,6 @@ export const Game: React.FC<GameProps> = ({
     fetchAiMove();
   }, [currentPlayer, gameType, grid, send, ticTacToeState]);
 
-  // Set the AI prompt when there's a winner
   useEffect(() => {
     if (
       ticTacToeState.matches(GameState.VICTORY) &&
@@ -78,7 +82,6 @@ export const Game: React.FC<GameProps> = ({
     }
   }, [ticTacToeState, gameType, winningPlayer, usernames]);
 
-  // Show popup when the response is received
   useEffect(() => {
     if (response) {
       setShowPopup(true);
@@ -91,18 +94,7 @@ export const Game: React.FC<GameProps> = ({
 
   return (
     <Wrapper>
-      {showPopup && (
-        <Popup>
-          <PopupContent>
-            <PopupImage
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/1024px-ChatGPT_logo.svg.png"
-              alt="ChatGPT logo"
-            />
-            {response}
-          </PopupContent>
-        </Popup>
-      )}{" "}
-      {/* Conditionally render popup */}
+      {showPopup && <Popup response={response} />}
       <Box>
         <Typewriter text={typewriterText} delay={150} />
         <GameStatus>

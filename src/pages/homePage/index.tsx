@@ -61,7 +61,7 @@ export const HomePage: React.FC = () => {
           ticTacToeState={ticTacToeState}
           setStart={setStart}
           setFormStep={setFormStep}
-          boardSize={boardSize} // Przekaż boardSize
+          boardSize={boardSize}
         />
       )}
     </Wrapper>

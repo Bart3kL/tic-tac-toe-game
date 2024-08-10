@@ -8,7 +8,6 @@ export const Text = styled.p`
   font-weight: 700;
   text-align: center;
   text-transform: capitalize;
-
   line-height: 39.6px;
   letter-spacing: -1.08px;
   color: ${({ theme }) => theme.colors.midnight};

@@ -1,16 +1,4 @@
-import { CellValue } from "../machines/ticTacToeMachine";
-import { openAIClient } from "./client";
-
-export const getAiMove = async (grid: CellValue[]): Promise<number> => {
-  const newArray = grid.map((value, index) => ({
-    index: index,
-    itBelongsAlreadyToSamone: value !== null,
-  }));
-
-  const prompt = `
-  ##Array:
-    [${JSON.stringify(newArray)}].
-
+export const prompt = `
 You are provided with an array of objects, each containing an "index" (a number from 0 to the length of the array minus 1) and a boolean property "itBelongsAlreadyToSamone".
 
 Your task is to select a number from the "index" properties in the array, but only those that have "itBelongsAlreadyToSamone": false. You should respond with only the number, nothing more.
@@ -62,9 +50,4 @@ You can only choose the index 0. So, you should respond with 0.
 - Do not provide any additional text or explanation.
 
 Make sure to follow these instructions precisely.
-    `;
-
-  const aiMove = await openAIClient(prompt);
-
-  return aiMove;
-};
+`;

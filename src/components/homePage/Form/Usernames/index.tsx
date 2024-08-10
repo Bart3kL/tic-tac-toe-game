@@ -53,7 +53,7 @@ export const Usernames: React.FC<UsernamesProps> = ({
           />
         )}
       </InputWrapper>
-      <Button onClick={() => handleSubmit()} text="Graj" />
+      <Button onClick={() => handleSubmit()} text="Wybierz tablicę" />
     </>
   );
 };

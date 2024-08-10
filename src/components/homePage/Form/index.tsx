@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { GameSelection } from "./GameSelection";
 import { Usernames } from "./Usernames";
+import { Boards } from "./Boards";
 
 import useSound from "../../../hooks/useSound";
 import clickSound from "../../../assets/click.mp3";
@@ -55,16 +56,7 @@ export const Form: React.FC<FormProps> = ({
             nick2={nick2}
           />
         ) : (
-          <div>
-            <h2>Wybierz grę</h2>
-            {/* Cokolwiek innego co tutaj masz */}
-
-            <div>
-              <button onClick={() => handleBoardSizeChange(3)}>3x3</button>
-              <button onClick={() => handleBoardSizeChange(4)}>4x4</button>
-              <button onClick={() => handleBoardSizeChange(5)}>5x5</button>
-            </div>
-          </div>
+          <Boards handleBoardSizeChange={handleBoardSizeChange} />
         )}
       </Box>
     </FormWrapper>

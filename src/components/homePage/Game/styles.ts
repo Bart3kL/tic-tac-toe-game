@@ -6,6 +6,8 @@ export const Wrapper = styled.div`
   align-items: center;
   justify-content: center;
 
+  width: calc(100% - 20px);
+  max-width: 450px;
   border-radius: 12px;
   border: 1px solid ${({ theme }) => theme.colors.paleLavender};
   padding: 20px;
@@ -27,30 +29,7 @@ export const Box = styled.div`
 
 export const GameStatus = styled.div`
   margin: 10px;
-  color: #1a202c;
+
   font-size: 24px;
-`;
-export const Popup = styled.div`
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #f0f0f0;
-  padding: 1rem;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  z-index: 1000; /* Ensure it is above other elements */
-  margin-top: 10px;
-`;
-
-export const PopupContent = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-export const PopupImage = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
+  color: ${({ theme }) => theme.colors.midnight};
 `;

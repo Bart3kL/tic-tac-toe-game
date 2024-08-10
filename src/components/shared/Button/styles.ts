@@ -13,9 +13,9 @@ export const ButtonStyles = styled.button`
 
   font-size: 18px;
   font-weight: 500;
+  line-height: 24px;
   color: ${({ theme }) => theme.colors.midnight};
   background-color: ${({ theme }) => theme.colors["white-2"]};
-  line-height: 24px;
 
   cursor: pointer;
   transition:

@@ -11,3 +11,10 @@ export const InputWrapper = styled.div`
   width: 100%;
   margin-bottom: 20px;
 `;
+
+export const ButtonsWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+`;
