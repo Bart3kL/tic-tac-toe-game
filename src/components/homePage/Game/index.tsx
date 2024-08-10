@@ -1,17 +1,27 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect, useRef } from "react";
 
 import { Board } from "./Board";
 import { Popup } from "./Popup";
-
-import { Typewriter } from "../../shared/Typewriter";
-import { GameEvent, GameState } from "../../../machines/ticTacToeMachine";
-import { getTypewriterText, getCurrentPlayerText } from "./utils";
-import { Wrapper, GameStatus, Box } from "./styles";
-import { prompt } from "../../../openai/prompts/aiMove";
 import { Button } from "../../shared/Button";
-import { GameProps } from "./types";
+import { Typewriter } from "../../shared/Typewriter";
+
+import {
+  GameEvent,
+  GameState,
+} from "../../../machines/TicTacToeMachine/constants";
+import { GameConfigEvent } from "../../../machines/TicTacToeConfigMachine/constants";
+import { getTypewriterText, getCurrentPlayerText } from "./utils";
+import { prompt } from "../../../openai/prompts/aiMove";
 import useOpenAIStream from "../../../openai/streaming";
 import { getOpenAiMove } from "../../../openai/getOpenAiMove";
+import { useSound } from "../../../hooks/useSound";
+import clickSound from "../../../assets/click.mp3";
+import click3Sound from "../../../assets/click3.mp3";
+import winSound from "../../../assets/win.mp3";
+
+import { GameProps } from "./types";
+import { Wrapper, GameStatus, Box } from "./styles";
 
 export const Game: React.FC<GameProps> = ({
   send,
@@ -24,21 +34,34 @@ export const Game: React.FC<GameProps> = ({
   setStart,
   setFormStep,
   boardSize,
+  isSoundActive,
+  ticTacToeConfigSend,
 }) => {
   const [winnerPrompt, setWinnerPrompt] = useState<string | null>(null);
-  const { response } = useOpenAIStream(winnerPrompt);
-
   const [showPopup, setShowPopup] = useState(false);
+
+  const { response } = useOpenAIStream(winnerPrompt);
+  const { playSound } = useSound(clickSound);
+  const { playSound: playAiPlayerClick } = useSound(click3Sound);
+  const { playSound: playWinSound } = useSound(winSound);
+
+  const playWinSoundRef = useRef(playWinSound);
+  const hasPlayedWinSoundRef = useRef(false);
 
   const handleSquareClick = (index: number): void => {
     send({ type: GameEvent.PLAY_MOVE, position: index });
   };
 
   const handleReset = (): void => {
-    setFormStep(1);
-    setStart(false);
-    send({ type: GameEvent.RESET });
-    setShowPopup(false);
+    isSoundActive && playSound();
+    setTimeout(() => {
+      setFormStep();
+      setStart(false);
+      send({ type: GameEvent.RESET });
+      ticTacToeConfigSend({ type: GameConfigEvent.RESET });
+      setShowPopup(false);
+      hasPlayedWinSoundRef.current = false;
+    }, 100);
   };
 
   useEffect(() => {
@@ -60,13 +83,23 @@ export const Game: React.FC<GameProps> = ({
         const isValidMove = grid[aiMove] === null;
 
         if (isValidMove && aiMove !== -1) {
+          isSoundActive && playAiPlayerClick();
+
           send({ type: GameEvent.PLAY_MOVE, position: aiMove });
         }
       }
     };
 
     fetchAiMove();
-  }, [currentPlayer, gameType, grid, send, ticTacToeState]);
+  }, [
+    currentPlayer,
+    gameType,
+    grid,
+    isSoundActive,
+    playAiPlayerClick,
+    send,
+    ticTacToeState,
+  ]);
 
   useEffect(() => {
     if (
@@ -83,6 +116,18 @@ export const Game: React.FC<GameProps> = ({
   }, [ticTacToeState, gameType, winningPlayer, usernames]);
 
   useEffect(() => {
+    if (
+      ticTacToeState.matches(GameState.VICTORY) &&
+      !hasPlayedWinSoundRef.current
+    ) {
+      if (isSoundActive) {
+        playWinSoundRef.current();
+        hasPlayedWinSoundRef.current = true;
+      }
+    }
+  }, [ticTacToeState, isSoundActive]);
+
+  useEffect(() => {
     if (response) {
       setShowPopup(true);
     }
@@ -96,7 +141,7 @@ export const Game: React.FC<GameProps> = ({
     <Wrapper>
       {showPopup && <Popup response={response} />}
       <Box>
-        <Typewriter text={typewriterText} delay={150} />
+        <Typewriter text={typewriterText} delay={150} id="game" />
         <GameStatus>
           {ticTacToeState.matches(GameState.VICTORY) && `Winner: ${winner}`}
           {ticTacToeState.matches(GameState.DRAW) && "Draw!"}
@@ -107,11 +152,12 @@ export const Game: React.FC<GameProps> = ({
           board={grid}
           onSquareClick={handleSquareClick}
           boardSize={boardSize}
+          currentPlayer={currentPlayer}
+          isSoundActive={isSoundActive}
+          isWinner={ticTacToeState.matches(GameState.VICTORY)}
         />
         <Button onClick={handleReset} text="Reset" />
       </Box>
     </Wrapper>
   );
 };
-
-export default Game;

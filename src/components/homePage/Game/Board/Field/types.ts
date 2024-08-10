@@ -1,4 +1,4 @@
-import { CellValue } from "../../../../../machines/ticTacToeMachine";
+import { CellValue } from "../../../../../machines/TicTacToeMachine/types";
 
 export interface FieldProps {
   value: CellValue;

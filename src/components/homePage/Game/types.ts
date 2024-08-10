@@ -1,34 +1,22 @@
 import {
   CellValue,
-  GameEvent,
+  TicTacToeEvent,
+  PlayerType,
   TicTacToeState,
-} from "../../../machines/ticTacToeMachine";
-
-type PlayMoveEvent = {
-  type: typeof GameEvent.PLAY_MOVE;
-  position: number;
-};
-
-type ResetEvent = {
-  type: typeof GameEvent.RESET;
-};
-
-type SetupGameEvent = {
-  type: typeof GameEvent.SETUP_GAME;
-  gameType: string;
-  usernames: string[];
-  boardSize: number;
-};
+} from "../../../machines/TicTacToeMachine/types";
+import { TicTacToeEventProps } from "../../../machines/TicTacToeConfigMachine/types";
 
 export interface GameProps {
-  send: (event: PlayMoveEvent | ResetEvent | SetupGameEvent) => void;
+  send: (event: TicTacToeEvent) => void;
   grid: CellValue[];
-  currentPlayer: string;
-  winningPlayer: string | undefined;
+  currentPlayer: PlayerType;
+  winningPlayer: PlayerType | undefined;
   gameType: string;
   usernames: string[];
-  ticTacToeState: TicTacToeState; // używamy określonego typu dla maszyny stanowej
+  ticTacToeState: TicTacToeState;
   setStart: (start: boolean) => void;
-  setFormStep: (step: number) => void;
+  setFormStep: () => void;
   boardSize: number;
+  isSoundActive: boolean;
+  ticTacToeConfigSend: (event: TicTacToeEventProps) => void;
 }

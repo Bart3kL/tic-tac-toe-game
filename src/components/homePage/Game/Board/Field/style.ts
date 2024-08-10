@@ -5,7 +5,7 @@ export const FieldBtn = styled.button`
   height: 50px;
   border: 1px solid ${({ theme }) => theme.colors.paleLavender};
 
-  font-size: 24px;
+  font-size: 34px;
   background-color: ${({ theme }) => theme.colors.white};
 
   color: ${({ theme }) => theme.colors.midnight};

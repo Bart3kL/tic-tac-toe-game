@@ -9,7 +9,7 @@ import { ButtonsWrapper } from "./styles";
 export const Boards: React.FC<BoardsProps> = ({ handleBoardSizeChange }) => {
   return (
     <>
-      <Typewriter text="Wybierz <b>grę</b>" delay={150} />
+      <Typewriter text="Select  <b>board</b>" delay={150} id="step3" />
       <ButtonsWrapper>
         <Button onClick={() => handleBoardSizeChange(3)} text="3x3" />
         <Button onClick={() => handleBoardSizeChange(4)} text="4x4" />

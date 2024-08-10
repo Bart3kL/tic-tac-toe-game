@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { SoundManagerEventProps } from "../../../machines/SoundManagerMachine/types";
 
 export interface SoundsManagerProps {
-  send: any;
+  send: (event: SoundManagerEventProps) => void;
   isSoundActive: boolean;
   isMusicActive: boolean;
 }

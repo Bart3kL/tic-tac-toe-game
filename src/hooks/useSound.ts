@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Howl } from "howler";
 
-const useSound = (soundUrl: string, loop = false) => {
+export const useSound = (soundUrl: string, loop = false) => {
   const soundRef = useRef<Howl | null>(null);
 
   useEffect(() => {
@@ -23,6 +23,7 @@ const useSound = (soundUrl: string, loop = false) => {
       soundRef.current.play();
     }
   };
+
   const stopSound = () => {
     if (soundRef.current) {
       soundRef.current.stop();
@@ -31,5 +32,3 @@ const useSound = (soundUrl: string, loop = false) => {
 
   return { playSound, stopSound };
 };
-
-export default useSound;

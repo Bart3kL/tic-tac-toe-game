@@ -1,0 +1,14 @@
+export const GameState = {
+  IN_PROGRESS: "IN_PROGRESS",
+  READY: "READY",
+} as const;
+
+export const GameConfigEvent = {
+  SET_BOARD_SIZE: "SET_BOARD_SIZE",
+  SET_USERNAMES: "SET_USERNAMES",
+  SET_GAME_TYPE: "SET_GAME_TYPE",
+  SET_PLAYERS: "SET_PLAYERS",
+  START_GAME: "START_GAME",
+  RESET: "RESET",
+  SET_FORM_STATE: "SET_FORM_STATE",
+} as const;

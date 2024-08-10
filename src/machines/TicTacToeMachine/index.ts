@@ -1,40 +1,20 @@
-import { createMachine, assign, StateFrom } from "xstate";
+import { createMachine, assign } from "xstate";
 
-export const GameState = {
-  DRAW: "DRAW",
-  IN_PROGRESS: "IN_PROGRESS",
-  VICTORY: "VICTORY",
-} as const;
+import { getWinningPatterns } from "./utils";
+import { GameState, GameEvent } from "./constants";
+import { PlayerType, CellValue, TicTacToeEvent } from "./types";
 
-export const GameEvent = {
-  PLAY_MOVE: "PLAY_MOVE",
-  RESET: "RESET",
-  SETUP_GAME: "SETUP_GAME",
-} as const;
-
-type PlayerType = "x" | "o";
-
-export type CellValue = PlayerType | null;
-
-export type TicTacToeEvent =
-  | { type: typeof GameEvent.PLAY_MOVE; position: number }
-  | { type: typeof GameEvent.RESET }
-  | {
-      type: typeof GameEvent.SETUP_GAME;
-      gameType: string;
-      usernames: string[];
-      boardSize: number; // Dodaj to
-    };
-
+// Default context initialization
 const defaultContext = {
   grid: Array(9).fill(null) as CellValue[],
   currentPlayer: "x" as PlayerType,
   winningPlayer: undefined as PlayerType | undefined,
   gameType: "" as string,
   usernames: [] as string[],
-  boardSize: 3, // Dodaj to domyślne ustawienie
+  boardSize: 3,
 };
 
+// Function to resize the grid based on the specified size
 const resizeGrid = (size: number): CellValue[] => Array(size * size).fill(null);
 
 export const ticTacToeMachine = createMachine(
@@ -80,6 +60,7 @@ export const ticTacToeMachine = createMachine(
   },
   {
     actions: {
+      // Apply the player's move to the grid and switch to the next player
       applyMove: assign({
         grid: ({ context, event }) => {
           if (event.type !== GameEvent.PLAY_MOVE) return context.grid;
@@ -92,18 +73,21 @@ export const ticTacToeMachine = createMachine(
         currentPlayer: ({ context }) =>
           context.currentPlayer === "x" ? "o" : "x",
       }),
+      // Restart the game to its default settings
       restartGame: assign({
-        grid: resizeGrid(defaultContext.boardSize), // Upewnij się, że restart gry resetuje planszę do ustawionego rozmiaru
+        grid: resizeGrid(defaultContext.boardSize),
         currentPlayer: "x",
         winningPlayer: undefined,
         gameType: "",
         usernames: [],
-        boardSize: 3, // Zresetuj również boardSize do domyślnego ustawienia
+        boardSize: 3,
       }),
+      // Declare the winner by setting the winning player
       declareWinner: assign({
         winningPlayer: ({ context }) =>
           context.currentPlayer === "x" ? "o" : "x",
       }),
+      // Setup game context based on the provided event values
       setupGame: assign({
         gameType: ({ event }) => {
           if (event.type !== GameEvent.SETUP_GAME) return "";
@@ -124,55 +108,21 @@ export const ticTacToeMachine = createMachine(
       }),
     },
     guards: {
+      // Check if there is a winning pattern on the grid
       hasWinner: ({ context: { grid, boardSize } }) => {
         // Function to find winning patterns for 3 consecutive identical symbols in a grid
-        const getWinningPatterns = (size: number) => {
-          const patterns: number[][] = [];
-
-          // Horizontal and Vertical
-          for (let i = 0; i < size; i++) {
-            for (let j = 0; j <= size - 3; j++) {
-              // Horizontal
-              patterns.push([i * size + j, i * size + j + 1, i * size + j + 2]);
-              // Vertical
-              patterns.push([
-                j * size + i,
-                (j + 1) * size + i,
-                (j + 2) * size + i,
-              ]);
-            }
-          }
-
-          // Diagonal (both directions)
-          for (let i = 0; i <= size - 3; i++) {
-            for (let j = 0; j <= size - 3; j++) {
-              // Top-left to bottom-right
-              patterns.push([
-                i * size + j,
-                (i + 1) * size + j + 1,
-                (i + 2) * size + j + 2,
-              ]);
-              // Bottom-left to top-right
-              patterns.push([
-                (i + 2) * size + j,
-                (i + 1) * size + j + 1,
-                i * size + j + 2,
-              ]);
-            }
-          }
-
-          return patterns;
-        };
-
         const winningPatterns = getWinningPatterns(boardSize);
 
+        // Check if any pattern is met
         return winningPatterns.some((pattern) =>
           pattern.every(
             (pos) => grid[pos] !== null && grid[pos] === grid[pattern[0]],
           ),
         );
       },
+      // Check if the grid is full without any winner
       isDraw: ({ context: { grid } }) => grid.every((cell) => cell !== null),
+      // Validate if the move is legal (position is not already occupied)
       moveIsValid: ({ context: { grid }, event }) => {
         if (event.type !== GameEvent.PLAY_MOVE) return false;
         return grid[event.position] === null;
@@ -180,6 +130,3 @@ export const ticTacToeMachine = createMachine(
     },
   },
 );
-export type TicTacToeState = StateFrom<typeof ticTacToeMachine>;
-
-export default ticTacToeMachine;

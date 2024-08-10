@@ -6,9 +6,10 @@ import { useTypewriter } from "./hook";
 export const Typewriter: React.FC<TypewriterProps> = ({
   text,
   delay,
+  id,
   infinite = false,
 }) => {
   const displayText = useTypewriter(text, delay, infinite);
 
-  return <Text>{displayText}</Text>;
+  return <Text data-testid={id}>{displayText}</Text>;
 };

@@ -1,7 +1,11 @@
+import {
+  TicTacToeEventProps,
+  TicTacToeState,
+} from "../../../machines/TicTacToeConfigMachine/types";
+
 export interface FormProps {
-  startGame: (type: string, playerInfo: string[]) => void;
   isSoundActive: boolean;
   formStep: number;
-  setFormStep: (step: number) => void;
-  setBoardSize: (size: number) => void;
+  ticTacToeConfigState: TicTacToeState;
+  ticTacToeConfigSend: (event: TicTacToeEventProps) => void;
 }

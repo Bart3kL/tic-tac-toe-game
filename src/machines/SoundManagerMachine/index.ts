@@ -1,23 +1,8 @@
 import { createMachine, assign } from "xstate";
+import { SoundEvent, SoundState } from "./constants";
+import { SoundManagerEvent, OnOffType } from "./types";
 
-export const SoundState = {
-  BOTH_ON: "BOTH_ON",
-  SOUND_OFF_MUSIC_ON: "SOUND_OFF_MUSIC_ON",
-  SOUND_ON_MUSIC_OFF: "SOUND_ON_MUSIC_OFF",
-  BOTH_OFF: "BOTH_OFF",
-} as const;
-
-export const SoundEvent = {
-  TOGGLE_SOUND: "TOGGLE_SOUND",
-  TOGGLE_MUSIC: "TOGGLE_MUSIC",
-} as const;
-
-type OnOffType = boolean;
-
-export type SoundManagerEvent =
-  | { type: typeof SoundEvent.TOGGLE_SOUND }
-  | { type: typeof SoundEvent.TOGGLE_MUSIC };
-
+// Define the default context for the machine
 const defaultContext = {
   isSoundOn: false as OnOffType,
   isMusicOn: false as OnOffType,
@@ -75,6 +60,7 @@ export const soundManagerMachine = createMachine(
             target: SoundState.SOUND_ON_MUSIC_OFF,
             actions: "toggleSound",
           },
+
           [SoundEvent.TOGGLE_MUSIC]: {
             target: SoundState.SOUND_OFF_MUSIC_ON,
             actions: "toggleMusic",
@@ -85,14 +71,14 @@ export const soundManagerMachine = createMachine(
   },
   {
     actions: {
+      // Toggle the sound state in the context
       toggleSound: assign({
         isSoundOn: ({ context: { isSoundOn } }) => !isSoundOn,
       }),
+      // Toggle the music state in the context
       toggleMusic: assign({
         isMusicOn: ({ context: { isMusicOn } }) => !isMusicOn,
       }),
     },
   },
 );
-
-export default soundManagerMachine;

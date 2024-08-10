@@ -9,19 +9,18 @@ import { Typewriter } from "../../../shared/Typewriter";
 
 export const Usernames: React.FC<UsernamesProps> = ({
   players,
-
   playSound,
   isSoundActive,
   setStep,
-  nick1,
-  nick2,
   setNick1,
   setNick2,
+  nick1,
+  nick2,
 }) => {
   const handleSubmit = () => {
     isSoundActive && playSound();
     setTimeout(() => {
-      setStep(3);
+      setStep();
     }, 100);
   };
 
@@ -34,6 +33,7 @@ export const Usernames: React.FC<UsernamesProps> = ({
             : "Enter your <b>nicknames</b>"
         }
         delay={150}
+        id="step2"
       />
       <InputWrapper>
         <Input
@@ -47,13 +47,13 @@ export const Usernames: React.FC<UsernamesProps> = ({
         {players === 2 && (
           <Input
             type="text"
-            placeholder="Second player nickname"
+            placeholder="Enter second player nickname"
             value={nick2}
             onChange={(e) => setNick2(e.target.value)}
           />
         )}
       </InputWrapper>
-      <Button onClick={() => handleSubmit()} text="Wybierz tablicę" />
+      <Button onClick={handleSubmit} text="Select board" />
     </>
   );
 };
